@@ -97,11 +97,11 @@ loginForm.addEventListener("submit", async (event) => {
             throw error;
         }
 
-showMainScreen();
-await loadMovieStatistics();
-await searchMovies();
+        showMainScreen();
+        await loadMovieStatistics();
+        await searchMovies();
 
-loginForm.reset();
+        loginForm.reset();
 
     } catch (error) {
         console.error("Login error:", error);
@@ -165,7 +165,7 @@ async function loadMovieStatistics() {
 
     document.getElementById("watchlist-count").textContent =
         watchlistCount ?? 0;
-        await loadLibraryMovies();
+    await loadLibraryMovies();
 }
 
 // ==========================================
@@ -183,11 +183,11 @@ async function checkSession() {
         return;
     }
 
-if (data.session) {
-    showMainScreen();
-    await loadMovieStatistics();
-    await searchMovies();
-}
+    if (data.session) {
+        showMainScreen();
+        await loadMovieStatistics();
+        await searchMovies();
+    }
 }
 
 // ==========================================
@@ -239,8 +239,8 @@ let searchTimeout;
 
 
 async function searchMovies() {
-const query = movieSearchInput.value.trim();
-const selectedYear = movieYearSelect.value;
+    const query = movieSearchInput.value.trim();
+    const selectedYear = movieYearSelect.value;
     searchResults.innerHTML = "";
     searchError.textContent = "Loading movies...";
 
@@ -248,14 +248,14 @@ const selectedYear = movieYearSelect.value;
         let url;
 
         if (query) {
-    // Search by title and optionally filter by year
-    url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&language=pl-PL&page=1`;
+            // Search by title and optionally filter by year
+            url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&language=pl-PL&page=1`;
 
-    if (selectedYear) {
-        url += `&primary_release_year=${selectedYear}`;
-    }
+            if (selectedYear) {
+                url += `&primary_release_year=${selectedYear}`;
+            }
 
-} else {
+        } else {
             // Discover recently released movies
             const today = new Date().toISOString().split("T")[0];
 
@@ -264,11 +264,12 @@ const selectedYear = movieYearSelect.value;
 
             const startDate = sixMonthsAgo.toISOString().split("T")[0];
 
-if (selectedYear) {
-    url = `https://api.themoviedb.org/3/discover/movie?language=pl-PL&sort_by=popularity.desc&primary_release_year=${selectedYear}&vote_count.gte=5&include_adult=false&page=1`;
-} else {
-    url = `https://api.themoviedb.org/3/discover/movie?language=pl-PL&sort_by=primary_release_date.desc&primary_release_date.gte=${startDate}&primary_release_date.lte=${today}&vote_count.gte=20&include_adult=false&page=1`;
-}        }
+            if (selectedYear) {
+                url = `https://api.themoviedb.org/3/discover/movie?language=pl-PL&sort_by=popularity.desc&primary_release_year=${selectedYear}&vote_count.gte=5&include_adult=false&page=1`;
+            } else {
+                url = `https://api.themoviedb.org/3/discover/movie?language=pl-PL&sort_by=primary_release_date.desc&primary_release_date.gte=${startDate}&primary_release_date.lte=${today}&vote_count.gte=20&include_adult=false&page=1`;
+            }
+        }
 
         const response = await fetch(url, {
             headers: {
@@ -294,22 +295,22 @@ if (selectedYear) {
             ? data.results
             : data.results.slice(0, 8);
 
-            // Sprawdzenie, które filmy są już w bibliotece
-const savedMovieStatuses = new Map();
+        // Sprawdzenie, które filmy są już w bibliotece
+        const savedMovieStatuses = new Map();
 
-const { data: savedMovies, error: savedMoviesError } =
-    await supabaseClient
-        .from("movies")
-        .select("tmdb_id, status")
-        .in("tmdb_id", moviesToDisplay.map(movie => movie.id));
+        const { data: savedMovies, error: savedMoviesError } =
+            await supabaseClient
+                .from("movies")
+                .select("tmdb_id, status")
+                .in("tmdb_id", moviesToDisplay.map(movie => movie.id));
 
-if (savedMoviesError) {
-    console.error("Błąd sprawdzania biblioteki:", savedMoviesError);
-} else {
-    savedMovies.forEach(movie => {
-        savedMovieStatuses.set(movie.tmdb_id, movie.status);
-    });
-}
+        if (savedMoviesError) {
+            console.error("Błąd sprawdzania biblioteki:", savedMoviesError);
+        } else {
+            savedMovies.forEach(movie => {
+                savedMovieStatuses.set(movie.tmdb_id, movie.status);
+            });
+        }
 
         moviesToDisplay.forEach(movie => {
             const movieCard = document.createElement("div");
@@ -333,38 +334,46 @@ if (savedMoviesError) {
             title.textContent = movie.title;
 
             const releaseYear = document.createElement("p");
-releaseYear.textContent = movie.release_date
-    ? movie.release_date.substring(0, 4)
-    : "Nieznany rok";
+            releaseYear.textContent = movie.release_date
+                ? movie.release_date.substring(0, 4)
+                : "Nieznany rok";
 
-// Gatunki filmu
-const genres = document.createElement("p");
-genres.className = "movie-genres";
-genres.textContent = movie.genre_ids?.length
-    ? movie.genre_ids.map(id => genreNames[id]).filter(Boolean).join(", ")
-    : "Brak informacji o gatunkach";
+            // Gatunki filmu
+            const genres = document.createElement("p");
+            genres.className = "movie-genres";
+            genres.textContent = movie.genre_ids?.length
+                ? movie.genre_ids.map(id => genreNames[id]).filter(Boolean).join(", ")
+                : "Brak informacji o gatunkach";
 
             const watchlistButton = document.createElement("button");
-watchlistButton.textContent = "Dodaj do obejrzenia";
+            watchlistButton.textContent = "Dodaj do obejrzenia";
 
-const watchedButton = document.createElement("button");
-watchedButton.textContent = "Oznacz jako obejrzany";
+            const watchedButton = document.createElement("button");
+            watchedButton.textContent = "Oznacz jako obejrzany";
 
-// Sprawdzenie aktualnego statusu filmu
-const savedStatus = savedMovieStatuses.get(movie.id);
+            // Sprawdzenie aktualnego statusu filmu
+            const savedStatus = savedMovieStatuses.get(movie.id);
+            // Kolor ramki zależny od statusu filmu
+            if (savedStatus === "watched") {
+                movieCard.classList.add("movie-watched");
+            }
 
-if (savedStatus === "watchlist") {
-    watchlistButton.textContent = "Dodano do obejrzenia ✓";
-    watchlistButton.disabled = true;
-}
+            if (savedStatus === "watchlist") {
+                movieCard.classList.add("movie-to-watch");
+            }
 
-if (savedStatus === "watched") {
-    watchlistButton.textContent = "Obejrzany ✓";
-    watchlistButton.disabled = true;
+            if (savedStatus === "watchlist") {
+                watchlistButton.textContent = "Dodano do obejrzenia ✓";
+                watchlistButton.disabled = true;
+            }
 
-    watchedButton.textContent = "Obejrzany ✓";
-    watchedButton.disabled = true;
-}
+            if (savedStatus === "watched") {
+                watchlistButton.textContent = "Obejrzany ✓";
+                watchlistButton.disabled = true;
+
+                watchedButton.textContent = "Obejrzany ✓";
+                watchedButton.disabled = true;
+            }
 
             watchlistButton.addEventListener("click", () => {
                 saveMovie(movie, "watchlist", watchlistButton);
@@ -373,13 +382,13 @@ if (savedStatus === "watched") {
             watchedButton.addEventListener("click", () => {
                 saveMovie(movie, "watched", watchedButton);
             });
-movieInfo.append(
-    title,
-    releaseYear,
-    genres,
-    watchlistButton,
-    watchedButton
-);
+            movieInfo.append(
+                title,
+                releaseYear,
+                genres,
+                watchlistButton,
+                watchedButton
+            );
 
             if (poster) {
                 movieCard.append(image, movieInfo);
@@ -469,8 +478,8 @@ async function saveMovie(movie, status, button) {
             ? "Obejrzany"
             : "Dodano na listę";
 
-await loadMovieStatistics();
-await searchMovies();
+        await loadMovieStatistics();
+        await searchMovies();
 
     } catch (error) {
         console.error("Save movie error:", error);
@@ -559,8 +568,8 @@ async function loadLibraryMovies() {
         libraryMovies.innerHTML = `
             <p class="empty-library">
                 ${activeLibraryTab === "watchlist"
-                    ? "Twoja lista obejrzanych filmów jest pusta."
-                    : "Nie masz jeszcze żadnych obejrzanych filmów."}
+                ? "Twoja lista obejrzanych filmów jest pusta."
+                : "Nie masz jeszcze żadnych obejrzanych filmów."}
             </p>
         `;
         return;
@@ -668,4 +677,28 @@ async function loadLibraryMovies() {
         card.appendChild(info);
         libraryMovies.appendChild(card);
     });
+}
+
+// Back to top button
+const backToTopButton = document.getElementById("back-to-top");
+
+if (backToTopButton) {
+
+    // Show button after scrolling down
+    window.addEventListener("scroll", () => {
+        if (window.scrollY > 300) {
+            backToTopButton.classList.add("visible");
+        } else {
+            backToTopButton.classList.remove("visible");
+        }
+    });
+
+    // Scroll smoothly to the top
+    backToTopButton.addEventListener("click", () => {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    });
+
 }

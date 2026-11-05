@@ -4,8 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moja Biblioteka Filmów</title>
+    <title>Owcza Kupa</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Imperial+Script&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -15,7 +18,7 @@
         <!-- EKRAN LOGOWANIA -->
         <section id="login-screen" class="login-screen">
             <div class="login-card">
-                <h1>Moja Biblioteka Filmów</h1>
+                <h1>Owcza Kupa</h1>
                 <hr>
                 <form id="login-form">
                     <label for="username">Nazwa użytkownika</label>
@@ -40,7 +43,7 @@
 
             <header class="main-header">
                 <div>
-                    <h1>Moja Biblioteka Filmów</h1>
+                    <h1>Owcza Kupa</h1>
                 </div>
 
                 <button id="logout-button" class="logout-button">
@@ -50,7 +53,6 @@
 
             <div class="welcome-section">
                 <h2>Witaj ponownie!</h2>
-                <p>Twoja kolekcja filmów czeka na Ciebie.</p>
             </div>
 
             <div class="stats-container">
@@ -82,7 +84,7 @@
             </div>
 
             <section class="library-section">
-                <h2>Twoja biblioteka</h2>
+                <h2>Biblioteka filmów</h2>
 
                 <div class="library-tabs">
                     <button type="button" id="watchlist-tab" class="library-tab active">
@@ -101,9 +103,15 @@
 
     </main>
 
+    <button id="back-to-top" title="Wróć na górę">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5"></path>
+            <path d="M5 12L12 5L19 12"></path>
+        </svg>
+    </button>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/script.js"></script>
-
 </body>
 
 </html>

@@ -1,25 +1,31 @@
-
 /* ==========================================
    GLOBAL SETTINGS
    ========================================== */
 
 /* Applies to every element on the page */
 * {
-    margin: 0;              /* Removes default outer spacing */
-    padding: 0;             /* Removes default inner spacing */
-    box-sizing: border-box; /* Includes padding and border in element width */
+    margin: 0;
+    /* Removes default outer spacing */
+    padding: 0;
+    /* Removes default inner spacing */
+    box-sizing: border-box;
+    /* Includes padding and border in element width */
 }
 
 /* Main page settings */
 body {
-    font-family: Arial, sans-serif; /* Font used throughout the website */
-    min-height: 100vh;              /* Makes the page at least as tall as the screen */
+    font-family: Arial, sans-serif;
+    /* Font used throughout the website */
+    min-height: 100vh;
+    /* Makes the page at least as tall as the screen */
 }
 
 /* Main application wrapper */
 .app-container {
-    width: 100%;      /* Takes the full available width */
-    min-height: 100vh; /* Minimum height of the screen */
+    width: 100%;
+    /* Takes the full available width */
+    min-height: 100vh;
+    /* Minimum height of the screen */
 }
 
 
@@ -31,17 +37,21 @@ body {
 .login-screen {
     min-height: 100vh;
     display: flex;
-    justify-content: center; /* Horizontal alignment */
-    align-items: center;     /* Vertical alignment */
+    justify-content: center;
+    /* Horizontal alignment */
+    align-items: center;
+    /* Vertical alignment */
     padding: 20px;
 }
 
 /* Login form container */
 .login-card {
     width: 100%;
-    max-width: 400px; /* Maximum width of the login card */
+    max-width: 400px;
+    /* Maximum width of the login card */
     padding: 40px;
-    border-radius: 14px; /* Rounded corners */
+    border-radius: 14px;
+    /* Rounded corners */
 }
 
 /* Login title */
@@ -60,7 +70,8 @@ body {
 /* General form layout */
 form {
     display: flex;
-    flex-direction: column; /* Places form elements vertically */
+    flex-direction: column;
+    /* Places form elements vertically */
     margin-top: 25px;
 }
 
@@ -74,14 +85,16 @@ label {
 input {
     padding: 13px;
     margin-bottom: 20px;
-    border: 1px solid; /* Border around input fields */
+    border: 1px solid;
+    /* Border around input fields */
     border-radius: 7px;
     font-size: 14px;
 }
 
 /* Appearance when an input field is selected */
 input:focus {
-    outline: none; /* Removes the default browser outline */
+    outline: none;
+    /* Removes the default browser outline */
 }
 
 /* Main buttons */
@@ -91,7 +104,8 @@ button {
     border-radius: 7px;
     font-size: 15px;
     font-weight: bold;
-    cursor: pointer; /* Shows a pointer when hovering */
+    cursor: pointer;
+    /* Shows a pointer when hovering */
 }
 
 /* Button hover effect */
@@ -125,7 +139,8 @@ button:hover {
 /* Main application width and positioning */
 #main-screen {
     max-width: 1200px;
-    margin: auto; /* Centers the application */
+    margin: auto;
+    /* Centers the application */
     padding: 35px 25px;
 }
 
@@ -172,8 +187,10 @@ button:hover {
 /* Statistics container */
 .stats-container {
     display: flex;
-    gap: 20px; /* Space between statistic cards */
-    flex-wrap: wrap; /* Allows cards to move to the next line */
+    gap: 20px;
+    /* Space between statistic cards */
+    flex-wrap: wrap;
+    /* Allows cards to move to the next line */
 }
 
 /* Individual statistic cards */
@@ -252,15 +269,18 @@ button:hover {
 .movie-card {
     border: 1px solid;
     border-radius: 10px;
-    overflow: hidden; /* Keeps content inside rounded corners */
+    overflow: hidden;
+    /* Keeps content inside rounded corners */
 }
 
 /* Movie poster */
 .movie-card img {
     width: 100%;
     display: block;
-    aspect-ratio: 2 / 3; /* Poster proportions */
-    object-fit: cover;  /* Fills the poster area without distortion */
+    aspect-ratio: 2 / 3;
+    /* Poster proportions */
+    object-fit: cover;
+    /* Fills the poster area without distortion */
 }
 
 /* Placeholder displayed when a poster is unavailable */
@@ -286,7 +306,8 @@ button:hover {
 .movie-info p {
     font-size: 13px;
     margin-bottom: 8px;
-    line-height: 1.5; /* Space between lines */
+    line-height: 1.5;
+    /* Space between lines */
 }
 
 /* Buttons inside movie cards */
@@ -299,7 +320,8 @@ button:hover {
 
 /* Disabled movie buttons */
 .movie-info button:disabled {
-    opacity: 0.7; /* Makes the button look inactive */
+    opacity: 0.7;
+    /* Makes the button look inactive */
     cursor: default;
 }
 
@@ -335,7 +357,8 @@ button:hover {
 
 /* Currently selected tab */
 .library-tab.active {
-    border-bottom: 3px solid; /* Visual indicator of the active tab */
+    border-bottom: 3px solid;
+    /* Visual indicator of the active tab */
 }
 
 /* Buttons inside the personal library */
@@ -386,7 +409,8 @@ button:hover {
 
 /* Effect when hovering over statistic cards */
 .library-stat:hover {
-    transform: translateY(-3px); /* Moves the card slightly upwards */
+    transform: translateY(-3px);
+    /* Moves the card slightly upwards */
 }
 
 
@@ -426,4 +450,57 @@ button:hover {
     border-radius: 7px;
     font-size: 14px;
     cursor: pointer;
+}
+
+h1 {
+    font-family: 'Imperial Script', cursive;
+    /* Custom font for main headings */
+    font-size: 40px !important;
+
+}
+
+/* Watched movie - green border */
+.movie-card.movie-watched {
+    border: 2px solid #4caf50;
+}
+
+/* Movie added to watchlist - yellow border */
+.movie-card.movie-to-watch {
+    border: 2px solid #ffc107;
+}
+
+/* Back to top button */
+#back-to-top {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+
+    width: 45px;
+    height: 45px;
+
+    border: none;
+    border-radius: 50%;
+
+    font-size: 24px;
+    cursor: pointer;
+
+    display: none;
+    z-index: 1000;
+
+    transition: opacity 0.3s ease;
+}
+
+/* Show button when scrolling */
+#back-to-top.visible {
+    display: block;
+}
+
+#back-to-top {
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+#back-to-top.visible {
+    display: flex;
 }
