@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moja Biblioteka Filmów</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <main class="app-container">
+
+        <!-- EKRAN LOGOWANIA -->
+        <section id="login-screen" class="login-screen">
+            <div class="login-card">
+                <h1>Moja Biblioteka Filmów</h1>
+                <p class="subtitle">Twoja osobista biblioteka filmów</p>
+
+                <form id="login-form">
+                    <label for="username">Nazwa użytkownika</label>
+                    <input type="text" id="username" placeholder="Wpisz nazwę użytkownika" autocomplete="username" required>
+
+                    <label for="password">Hasło</label>
+                    <input type="password" id="password" placeholder="Wpisz hasło"
+                        autocomplete="current-password" required>
+
+                    <button type="submit" id="login-button">
+                        Zaloguj się
+                    </button>
+
+                    <p id="login-error" class="error-message"></p>
+                </form>
+            </div>
+        </section>
+
+        <!-- GŁÓWNA APLIKACJA -->
+        <section id="main-screen" class="hidden">
+
+            <header class="main-header">
+                <div>
+                    <h1>Moja Biblioteka Filmów</h1>
+                    <p>Twoja osobista biblioteka filmów</p>
+                </div>
+
+                <button id="logout-button" class="logout-button">
+                    Wyloguj się
+                </button>
+            </header>
+
+            <div class="welcome-section">
+                <h2>Witaj ponownie!</h2>
+                <p>Twoja kolekcja filmów czeka na Ciebie.</p>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-card library-stat" id="watched-stat">
+                    <span class="stat-number" id="watched-count">0</span>
+                    <span>Obejrzane filmy</span>
+                </div>
+
+                <div class="stat-card library-stat" id="watchlist-stat">
+                    <span class="stat-number" id="watchlist-count">0</span>
+                    <span>Filmy do obejrzenia</span>
+                </div>
+            </div>
+
+            <div class="search-section">
+                <h2>Wyszukaj filmy</h2>
+
+                <form id="movie-search-form">
+                    <input type="text" id="movie-search-input" placeholder="Wpisz tytuł filmu..." required>
+
+                    <button type="submit">Szukaj</button>
+                </form>
+
+                <p id="search-error" class="error-message"></p>
+
+                <div id="search-results" class="movie-grid"></div>
+            </div>
+
+            <section class="library-section">
+                <h2>Twoja biblioteka</h2>
+
+                <div class="library-tabs">
+                    <button type="button" id="watchlist-tab" class="library-tab active">
+                        Do obejrzenia
+                    </button>
+
+                    <button type="button" id="watched-tab" class="library-tab">
+                        Obejrzane
+                    </button>
+                </div>
+
+                <div id="library-movies" class="movie-grid"></div>
+            </section>
+
+        </section>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/script.js"></script>
+
+</body>
+
+</html>
