@@ -1,225 +1,227 @@
 
+/* ==========================================
+   GLOBAL SETTINGS
+   ========================================== */
+
+/* Applies to every element on the page */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    margin: 0;              /* Removes default outer spacing */
+    padding: 0;             /* Removes default inner spacing */
+    box-sizing: border-box; /* Includes padding and border in element width */
 }
 
+/* Main page settings */
 body {
-    font-family: Arial, sans-serif;
-    background: #111318;
-    color: #ffffff;
-    min-height: 100vh;
+    font-family: Arial, sans-serif; /* Font used throughout the website */
+    min-height: 100vh;              /* Makes the page at least as tall as the screen */
 }
 
+/* Main application wrapper */
 .app-container {
-    width: 100%;
-    min-height: 100vh;
+    width: 100%;      /* Takes the full available width */
+    min-height: 100vh; /* Minimum height of the screen */
 }
 
-/* LOGIN */
 
+/* ==========================================
+   LOGIN SCREEN
+   ========================================== */
+
+/* Centers the login card horizontally and vertically */
 .login-screen {
     min-height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: center; /* Horizontal alignment */
+    align-items: center;     /* Vertical alignment */
     padding: 20px;
 }
 
+/* Login form container */
 .login-card {
-    background: #1c2029;
     width: 100%;
-    max-width: 400px;
+    max-width: 400px; /* Maximum width of the login card */
     padding: 40px;
-    border-radius: 14px;
-    border: 1px solid #303643;
+    border-radius: 14px; /* Rounded corners */
 }
 
+/* Login title */
 .login-card h1 {
     text-align: center;
     font-size: 28px;
     margin-bottom: 8px;
 }
 
+/* Text below the login title */
 .subtitle {
     text-align: center;
-    color: #9ca3af;
     margin-bottom: 35px;
 }
 
+/* General form layout */
 form {
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Places form elements vertically */
+    margin-top: 25px;
 }
 
+/* Form labels */
 label {
     font-size: 14px;
     margin-bottom: 8px;
-    color: #d1d5db;
 }
 
+/* Input fields */
 input {
     padding: 13px;
     margin-bottom: 20px;
-    background: #111318;
-    border: 1px solid #3b4250;
+    border: 1px solid; /* Border around input fields */
     border-radius: 7px;
-    color: white;
     font-size: 14px;
 }
 
+/* Appearance when an input field is selected */
 input:focus {
-    outline: none;
-    border-color: #8b5cf6;
+    outline: none; /* Removes the default browser outline */
 }
 
+/* Main buttons */
 button {
     padding: 13px;
     border: none;
     border-radius: 7px;
-    background: #8b5cf6;
-    color: white;
     font-size: 15px;
     font-weight: bold;
-    cursor: pointer;
+    cursor: pointer; /* Shows a pointer when hovering */
 }
 
+/* Button hover effect */
 button:hover {
-    background: #7c3aed;
+    /* Add your hover background color here */
 }
 
+/* Login error messages */
 .error-message {
-    color: #f87171;
     font-size: 13px;
     margin-top: 15px;
     text-align: center;
 }
 
-/* MAIN APPLICATION */
 
+/* ==========================================
+   MAIN APPLICATION
+   ========================================== */
+
+/* Hides elements when they are not needed */
 .hidden {
     display: none !important;
 }
 
+/* Ensures login and main screens can be hidden */
 #login-screen.hidden,
 #main-screen.hidden {
     display: none !important;
 }
 
+/* Main application width and positioning */
 #main-screen {
     max-width: 1200px;
-    margin: auto;
+    margin: auto; /* Centers the application */
     padding: 35px 25px;
 }
 
+/* Header containing the title and logout button */
 .main-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding-bottom: 25px;
-    border-bottom: 1px solid #303643;
+    border-bottom: 1px solid;
 }
 
+/* Main application title */
 .main-header h1 {
     font-size: 26px;
 }
 
+/* Subtitle inside the header */
 .main-header p {
-    color: #9ca3af;
     margin-top: 5px;
 }
 
+/* Logout button */
 .logout-button {
-    background: #303643;
     padding: 10px 20px;
 }
 
-.logout-button:hover {
-    background: #454d5c;
-}
-
+/* Welcome section spacing */
 .welcome-section {
     margin: 40px 0 25px;
 }
 
+/* Welcome title */
 .welcome-section h2 {
     margin-bottom: 8px;
 }
 
+/* Welcome description and placeholder text */
 .welcome-section p,
 .placeholder-section p {
-    color: #9ca3af;
+    /* Text styling */
 }
 
+/* Statistics container */
 .stats-container {
     display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+    gap: 20px; /* Space between statistic cards */
+    flex-wrap: wrap; /* Allows cards to move to the next line */
 }
 
+/* Individual statistic cards */
 .stat-card {
-    background: #1c2029;
-    border: 1px solid #303643;
+    border: 1px solid;
     border-radius: 10px;
     padding: 25px;
     min-width: 200px;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    color: #9ca3af;
 }
 
+/* Large numbers inside statistic cards */
 .stat-number {
-    color: white;
     font-size: 32px;
     font-weight: bold;
 }
 
+/* Placeholder section */
 .placeholder-section {
-    background: #1c2029;
-    border: 1px solid #303643;
+    border: 1px solid;
     border-radius: 10px;
     padding: 30px;
     margin-top: 30px;
 }
 
+/* Placeholder section title */
 .placeholder-section h2 {
     margin-bottom: 10px;
 }
 
-/* RESPONSIVE */
 
-@media (max-width: 500px) {
-    .login-card {
-        padding: 25px;
-    }
+/* ==========================================
+   MOVIE SEARCH
+   ========================================== */
 
-    .main-header {
-        align-items: flex-start;
-        gap: 15px;
-    }
-
-    .stats-container {
-        flex-direction: column;
-    }
-
-    #main-screen {
-        padding: 25px 15px;
-    }
-}
-
-
-/* MOVIE SEARCH */
-
+/* Search section spacing */
 .search-section {
     margin-top: 40px;
 }
 
+/* Search section title */
 .search-section h2 {
     margin-bottom: 20px;
 }
 
+/* Search form: input and button in one row */
 #movie-search-form {
     display: flex;
     flex-direction: row;
@@ -227,15 +229,18 @@ button:hover {
     margin-bottom: 20px;
 }
 
+/* Search input takes all available space */
 #movie-search-input {
     flex: 1;
     margin-bottom: 0;
 }
 
+/* Search button width */
 #movie-search-form button {
     min-width: 100px;
 }
 
+/* Grid containing movie cards */
 .movie-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -243,46 +248,48 @@ button:hover {
     margin-top: 25px;
 }
 
+/* Individual movie card */
 .movie-card {
-    background: #1c2029;
-    border: 1px solid #303643;
+    border: 1px solid;
     border-radius: 10px;
-    overflow: hidden;
+    overflow: hidden; /* Keeps content inside rounded corners */
 }
 
+/* Movie poster */
 .movie-card img {
     width: 100%;
     display: block;
-    aspect-ratio: 2 / 3;
-    object-fit: cover;
+    aspect-ratio: 2 / 3; /* Poster proportions */
+    object-fit: cover;  /* Fills the poster area without distortion */
 }
 
+/* Placeholder displayed when a poster is unavailable */
 .no-poster {
     aspect-ratio: 2 / 3;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #9ca3af;
-    background: #303643;
 }
 
+/* Movie information container */
 .movie-info {
     padding: 15px;
 }
 
+/* Movie title */
 .movie-info h3 {
     font-size: 16px;
     margin-bottom: 8px;
 }
 
+/* Movie year and genres */
 .movie-info p {
-    color: #9ca3af;
     font-size: 13px;
     margin-bottom: 8px;
-    line-height: 1.5;
+    line-height: 1.5; /* Space between lines */
 }
 
-
+/* Buttons inside movie cards */
 .movie-info button {
     width: 100%;
     margin-top: 10px;
@@ -290,13 +297,48 @@ button:hover {
     padding: 10px;
 }
 
+/* Disabled movie buttons */
 .movie-info button:disabled {
-    opacity: 0.7;
+    opacity: 0.7; /* Makes the button look inactive */
     cursor: default;
 }
 
-/* LIBRARY MOVIE ACTIONS */
 
+/* ==========================================
+   PERSONAL LIBRARY
+   ========================================== */
+
+/* Library section spacing */
+.library-section {
+    margin-top: 40px;
+}
+
+/* Library title */
+.library-section h2 {
+    margin-bottom: 20px;
+}
+
+/* Tabs for switching between movie lists */
+.library-tabs {
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid;
+    margin-bottom: 25px;
+}
+
+/* Individual library tab */
+.library-tab {
+    border-radius: 7px 7px 0 0;
+    padding: 12px 22px;
+    border-bottom: 3px solid transparent;
+}
+
+/* Currently selected tab */
+.library-tab.active {
+    border-bottom: 3px solid; /* Visual indicator of the active tab */
+}
+
+/* Buttons inside the personal library */
 .movie-actions {
     display: flex;
     flex-direction: column;
@@ -304,71 +346,75 @@ button:hover {
     margin-top: 12px;
 }
 
+/* Library action button sizes */
 .movie-actions button {
     width: 100%;
     padding: 10px;
 }
 
+/* Remove movie button */
 .movie-actions .remove-movie-button {
-    background: #292d38;
-    color: #ff6b6b;
-    border: 1px solid #454b59;
+    border: 1px solid;
 }
 
+/* Remove button hover effect */
 .movie-actions .remove-movie-button:hover {
-    background: #3a252b;
-    border-color: #ff6b6b;
+    /* Add your hover styling here */
 }
 
+/* Disabled library buttons */
 .movie-actions button:disabled {
     opacity: 0.6;
     cursor: wait;
 }
 
+/* Message displayed when the library is empty */
 .empty-library {
-    color: #9ca3af;
     padding: 25px 0;
 }
 
-/* CLICKABLE MOVIE STATISTICS */
 
+/* ==========================================
+   CLICKABLE STATISTICS
+   ========================================== */
+
+/* Makes statistic cards clickable */
 .library-stat {
     cursor: pointer;
     transition: transform 0.2s, background 0.2s;
 }
 
+/* Effect when hovering over statistic cards */
 .library-stat:hover {
-    transform: translateY(-3px);
-    background: #252a35;
+    transform: translateY(-3px); /* Moves the card slightly upwards */
 }
 
-/* PERSONAL LIBRARY */
 
-.library-section {
-    margin-top: 40px;
-}
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
 
-.library-section h2 {
-    margin-bottom: 20px;
-}
+/* Styles for screens narrower than 500px (mobile phones) */
+@media (max-width: 500px) {
 
-.library-tabs {
-    display: flex;
-    gap: 10px;
-    border-bottom: 1px solid #303643;
-    margin-bottom: 25px;
-}
+    /* Smaller login card padding */
+    .login-card {
+        padding: 25px;
+    }
 
-.library-tab {
-    background: transparent;
-    color: #9ca3af;
-    border-radius: 7px 7px 0 0;
-    padding: 12px 22px;
-    border-bottom: 3px solid transparent;
-}
+    /* Header elements align to the top */
+    .main-header {
+        align-items: flex-start;
+        gap: 15px;
+    }
 
-.library-tab.active {
-    color: white;
-    background: #1c2029;
-    border-bottom: 3px solid #8b5cf6;
+    /* Statistics cards are displayed vertically */
+    .stats-container {
+        flex-direction: column;
+    }
+
+    /* Smaller spacing around the main application */
+    #main-screen {
+        padding: 25px 15px;
+    }
 }
