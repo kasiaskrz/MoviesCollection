@@ -322,9 +322,6 @@ genres.textContent = movie.genre_ids?.length
     ? movie.genre_ids.map(id => genreNames[id]).filter(Boolean).join(", ")
     : "Brak informacji o gatunkach";
 
-const overview = document.createElement("p");
-            overview.textContent = movie.overview || "No description available.";
-
             const watchlistButton = document.createElement("button");
 watchlistButton.textContent = "Dodaj do obejrzenia";
 
@@ -358,7 +355,6 @@ movieInfo.append(
     title,
     releaseYear,
     genres,
-    overview,
     watchlistButton,
     watchedButton
 );
