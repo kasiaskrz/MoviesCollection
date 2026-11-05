@@ -215,6 +215,20 @@ checkSession();
 
 const movieSearchForm = document.getElementById("movie-search-form");
 const movieSearchInput = document.getElementById("movie-search-input");
+
+
+const movieYearSelect = document.getElementById("movie-year");
+
+// Generate year options
+const currentYear = new Date().getFullYear();
+
+for (let year = currentYear; year >= 1900; year--) {
+    const option = document.createElement("option");
+    option.value = year;
+    option.textContent = year;
+    movieYearSelect.appendChild(option);
+}
+
 const searchResults = document.getElementById("search-results");
 const searchError = document.getElementById("search-error");
 
@@ -225,8 +239,8 @@ let searchTimeout;
 
 
 async function searchMovies() {
-    const query = movieSearchInput.value.trim();
-
+const query = movieSearchInput.value.trim();
+const selectedYear = movieYearSelect.value;
     searchResults.innerHTML = "";
     searchError.textContent = "Loading movies...";
 
@@ -234,9 +248,14 @@ async function searchMovies() {
         let url;
 
         if (query) {
-            // Search by title
-            url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&language=pl-PL&page=1`;
-        } else {
+    // Search by title and optionally filter by year
+    url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&language=pl-PL&page=1`;
+
+    if (selectedYear) {
+        url += `&primary_release_year=${selectedYear}`;
+    }
+
+} else {
             // Discover recently released movies
             const today = new Date().toISOString().split("T")[0];
 
@@ -245,8 +264,11 @@ async function searchMovies() {
 
             const startDate = sixMonthsAgo.toISOString().split("T")[0];
 
-            url = `https://api.themoviedb.org/3/discover/movie?language=pl-PL&sort_by=primary_release_date.desc&primary_release_date.gte=${startDate}&primary_release_date.lte=${today}&vote_count.gte=20&include_adult=false&page=1`;
-        }
+if (selectedYear) {
+    url = `https://api.themoviedb.org/3/discover/movie?language=pl-PL&sort_by=popularity.desc&primary_release_year=${selectedYear}&vote_count.gte=5&include_adult=false&page=1`;
+} else {
+    url = `https://api.themoviedb.org/3/discover/movie?language=pl-PL&sort_by=primary_release_date.desc&primary_release_date.gte=${startDate}&primary_release_date.lte=${today}&vote_count.gte=20&include_adult=false&page=1`;
+}        }
 
         const response = await fetch(url, {
             headers: {
@@ -386,6 +408,11 @@ movieSearchInput.addEventListener("input", () => {
     searchTimeout = setTimeout(() => {
         searchMovies();
     }, 300);
+});
+
+// Search when selected year changes
+movieYearSelect.addEventListener("change", () => {
+    searchMovies();
 });
 
 // Prevent form submission from reloading the page
@@ -608,7 +635,7 @@ async function loadLibraryMovies() {
 
         // Remove button (in both tabs)
         const removeButton = document.createElement("button");
-        removeButton.textContent = "Remove";
+        removeButton.textContent = "Usuń";
         removeButton.className = "remove-movie-button";
 
         removeButton.addEventListener("click", async () => {

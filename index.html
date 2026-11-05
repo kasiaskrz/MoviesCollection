@@ -19,11 +19,12 @@
                 <hr>
                 <form id="login-form">
                     <label for="username">Nazwa użytkownika</label>
-                    <input type="text" id="username" placeholder="Wpisz nazwę użytkownika" autocomplete="username" required>
+                    <input type="text" id="username" placeholder="Wpisz nazwę użytkownika" autocomplete="username"
+                        required>
 
                     <label for="password">Hasło</label>
-                    <input type="password" id="password" placeholder="Wpisz hasło"
-                        autocomplete="current-password" required>
+                    <input type="password" id="password" placeholder="Wpisz hasło" autocomplete="current-password"
+                        required>
 
                     <button type="submit" id="login-button">
                         Zaloguj się
@@ -40,7 +41,6 @@
             <header class="main-header">
                 <div>
                     <h1>Moja Biblioteka Filmów</h1>
-                    <p>Twoja osobista biblioteka filmów</p>
                 </div>
 
                 <button id="logout-button" class="logout-button">
@@ -70,7 +70,9 @@
 
                 <form id="movie-search-form">
                     <input type="text" id="movie-search-input" placeholder="Wpisz tytuł filmu..." required>
-
+                    <select id="movie-year">
+                        <option value="">Wszystkie lata</option>
+                    </select>
                     <button type="submit">Szukaj</button>
                 </form>
 
