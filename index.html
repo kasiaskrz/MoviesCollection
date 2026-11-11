@@ -28,7 +28,10 @@
                     <label for="password">Hasło</label>
                     <input type="password" id="password" placeholder="Wpisz hasło" autocomplete="current-password"
                         required>
-
+                    <label class="remember-me">
+                        <input type="checkbox" id="remember-me">
+                        Zapamiętaj mnie
+                    </label>
                     <button type="submit" id="login-button">
                         Zaloguj się
                     </button>
@@ -48,11 +51,11 @@
                 </div>
 
                 <div class="header-actions">
-                    <button id="profile-button" class="profile-button" title="Profil">
+                    <button type="button" id="profile-button" class="profile-button" title="Profil">
                         <img id="header-avatar" src="default-avatar.png" alt="Profil">
                     </button>
 
-                    <button id="logout-button" class="logout-button">
+                    <button type="button" id="logout-button" class="logout-button">
                         Wyloguj się
                     </button>
                 </div>
@@ -118,11 +121,14 @@
                     <!-- Selected user's library -->
                     <div id="user-library-view" class="hidden">
                         <button type="button" id="back-to-users">
-                            ← Wróć do użytkowników
+                            ‹ Wróć do użytkowników
                         </button>
 
-                        <h3 id="selected-username"></h3>
+                        <div class="public-profile-header">
+                            <img id="selected-user-avatar" src="default-avatar.png" alt="Zdjęcie profilowe">
 
+                            <h3 id="selected-username"></h3>
+                        </div>
                         <div class="library-tabs">
                             <button type="button" id="public-watchlist-tab" class="library-tab active">
                                 Do obejrzenia
@@ -143,13 +149,29 @@
 
     </main>
 
-    <button id="back-to-top" title="Wróć na górę">
+    <button type="button" id="back-to-top" title="Wróć na górę">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 19V5"></path>
             <path d="M5 12L12 5L19 12"></path>
         </svg>
     </button>
+
+    <div id="profile-modal" class="profile-modal hidden">
+        <div class="profile-modal-content">
+            <button id="close-profile-modal" type="button">×</button>
+
+            <h2>Twoje Profilowe</h2>
+
+            <img id="profile-preview" src="default-avatar.png" alt="Zdjęcie profilowe">
+
+            <input type="file" id="avatar-input" accept="image/png, image/jpeg, image/webp">
+
+            <button id="save-avatar-button" type="button">
+                Zapisz zdjęcie
+            </button>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/script.js"></script>
 </body>

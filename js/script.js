@@ -29,10 +29,44 @@ const genreNames = {
     37: "Western"
 };
 
+const rememberMeStorage = {
+    getItem(key) {
+        if (localStorage.getItem("rememberMe") === "true") {
+            return localStorage.getItem(key) || sessionStorage.getItem(key);
+        }
+
+        return sessionStorage.getItem(key);
+    },
+
+    setItem(key, value) {
+        if (localStorage.getItem("rememberMe") === "true") {
+            localStorage.setItem(key, value);
+            sessionStorage.removeItem(key);
+        } else {
+            sessionStorage.setItem(key, value);
+            localStorage.removeItem(key);
+        }
+    },
+
+    removeItem(key) {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
+    }
+};
+
 const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
-    SUPABASE_KEY
+    SUPABASE_KEY,
+    {
+        auth: {
+            storage: rememberMeStorage,
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
+        }
+    }
 );
+    
 
 // ==========================================
 // HTML ELEMENTS
@@ -49,6 +83,154 @@ const logoutButton = document.getElementById("logout-button");
 
 const usernameInput = document.getElementById("username");
 const passwordInput = document.getElementById("password");
+
+// RESTORE REMEMBER ME SETTINGS
+usernameInput.value = localStorage.getItem("savedUsername") || "";
+
+document.getElementById("remember-me").checked =
+    localStorage.getItem("rememberMe") === "true";
+
+// PROFILE ELEMENTS
+const profileButton = document.getElementById("profile-button");
+const headerAvatar = document.getElementById("header-avatar");
+
+const profileModal = document.getElementById("profile-modal");
+const closeProfileModal = document.getElementById("close-profile-modal");
+
+const avatarInput = document.getElementById("avatar-input");
+const profilePreview = document.getElementById("profile-preview");
+const saveAvatarButton = document.getElementById("save-avatar-button");
+const selectedUserAvatar = document.getElementById("selected-user-avatar");
+
+// LOAD USER AVATAR
+async function loadUserAvatar() {
+    const { data: { user }, error: userError } =
+        await supabaseClient.auth.getUser();
+
+    if (userError || !user) return;
+
+    const { data: profile, error } = await supabaseClient
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", user.id)
+        .maybeSingle();
+
+    if (error) {
+        console.error("Avatar loading error:", error);
+        return;
+    }
+
+    const avatarUrl = profile?.avatar_url || "default-avatar.png";
+
+    headerAvatar.src = avatarUrl;
+    profilePreview.src = avatarUrl;
+}
+
+// OPEN PROFILE MODAL
+profileButton.addEventListener("click", async () => {
+    profileModal.classList.remove("hidden");
+    await loadUserAvatar();
+});
+
+// CLOSE PROFILE MODAL
+closeProfileModal.addEventListener("click", () => {
+    profileModal.classList.add("hidden");
+});
+
+// CLOSE MODAL WHEN CLICKING OUTSIDE
+profileModal.addEventListener("click", (event) => {
+    if (event.target === profileModal) {
+        profileModal.classList.add("hidden");
+    }
+});
+
+// PREVIEW SELECTED AVATAR
+avatarInput.addEventListener("change", () => {
+    const file = avatarInput.files[0];
+
+    if (file) {
+        profilePreview.src = URL.createObjectURL(file);
+    }
+});
+
+// SAVE USER AVATAR
+saveAvatarButton.addEventListener("click", async () => {
+    const file = avatarInput.files[0];
+
+    if (!file) {
+        alert("Najpierw wybierz zdjęcie.");
+        return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+    if (!allowedTypes.includes(file.type)) {
+        alert("Dozwolone formaty: JPG, PNG i WEBP.");
+        return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+        alert("Zdjęcie może mieć maksymalnie 5 MB.");
+        return;
+    }
+
+    const { data: { user }, error: userError } =
+        await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+        alert("Musisz być zalogowany.");
+        return;
+    }
+
+    saveAvatarButton.disabled = true;
+    saveAvatarButton.textContent = "Zapisywanie...";
+
+    try {
+        const avatarPath = `${user.id}/avatar`;
+        console.log("CURRENT USER ID:", user.id);
+        console.log("AVATAR PATH:", avatarPath);
+
+        const { error: uploadError } = await supabaseClient
+            .storage
+            .from("avatars")
+            .upload(avatarPath, file, {
+                upsert: true,
+                contentType: file.type
+            });
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabaseClient
+            .storage
+            .from("avatars")
+            .getPublicUrl(avatarPath);
+
+        const avatarUrl = `${data.publicUrl}?v=${Date.now()}`;
+        console.log("AVATAR URL:", avatarUrl);
+
+        const { error: updateError } = await supabaseClient
+            .from("profiles")
+            .update({ avatar_url: avatarUrl })
+            .eq("id", user.id);
+
+        if (updateError) throw updateError;
+
+        headerAvatar.src = avatarUrl;
+        profilePreview.src = avatarUrl;
+
+        profileModal.classList.add("hidden");
+        avatarInput.value = "";
+
+        alert("Zdjęcie profilowe zostało zapisane!");
+
+    } catch (error) {
+        console.error("Avatar save error:", error);
+        alert("Nie udało się zapisać zdjęcia. Sprawdź konsolę.");
+    } finally {
+        saveAvatarButton.disabled = false;
+        saveAvatarButton.textContent = "Zapisz zdjęcie";
+    }
+});
 
 // ==========================================
 // SCREEN MANAGEMENT
@@ -76,6 +258,16 @@ loginForm.addEventListener("submit", async (event) => {
     const username = usernameInput.value.trim();
     const password = passwordInput.value;
 
+    const rememberMe = document.getElementById("remember-me").checked;
+
+    localStorage.setItem("rememberMe", rememberMe ? "true" : "false");
+
+    if (rememberMe) {
+        localStorage.setItem("savedUsername", username);
+    } else {
+        localStorage.removeItem("savedUsername");
+    }
+
     if (!username || !password) {
         loginError.textContent = "Please enter your username and password.";
         return;
@@ -98,6 +290,7 @@ loginForm.addEventListener("submit", async (event) => {
         }
 
         showMainScreen();
+        await loadUserAvatar();
         await loadMovieStatistics();
         await searchMovies();
 
@@ -200,6 +393,7 @@ async function checkSession() {
 
     if (data.session) {
         showMainScreen();
+        await loadUserAvatar();
         await loadMovieStatistics();
         await searchMovies();
     }
@@ -313,10 +507,19 @@ async function searchMovies() {
         // Sprawdzenie, które filmy są już w bibliotece
         const savedMovieStatuses = new Map();
 
+        const { data: { user }, error: userError } =
+            await supabaseClient.auth.getUser();
+
+        if (userError || !user) {
+            console.error("Nie udało się pobrać zalogowanego użytkownika.");
+            return;
+        }
+
         const { data: savedMovies, error: savedMoviesError } =
             await supabaseClient
                 .from("movies")
                 .select("tmdb_id, status")
+                .eq("user_id", user.id)
                 .in("tmdb_id", moviesToDisplay.map(movie => movie.id));
 
         if (savedMoviesError) {
@@ -386,24 +589,38 @@ async function searchMovies() {
                 watchlistButton.textContent = "Obejrzany ✓";
                 watchlistButton.disabled = true;
 
-                watchedButton.textContent = "Obejrzany ✓";
-                watchedButton.disabled = true;
+                watchedButton.remove();
+
             }
+
+            watchlistButton.type = "button";
 
             watchlistButton.addEventListener("click", () => {
                 saveMovie(movie, "watchlist", watchlistButton);
             });
 
+            watchedButton.type = "button";
+
             watchedButton.addEventListener("click", () => {
                 saveMovie(movie, "watched", watchedButton);
             });
-            movieInfo.append(
-                title,
-                releaseYear,
-                genres,
-                watchlistButton,
-                watchedButton
-            );
+
+            if (savedStatus === "watched") {
+                movieInfo.append(
+                    title,
+                    releaseYear,
+                    genres,
+                    watchlistButton
+                );
+            } else {
+                movieInfo.append(
+                    title,
+                    releaseYear,
+                    genres,
+                    watchlistButton,
+                    watchedButton
+                );
+            }
 
             if (poster) {
                 movieCard.append(image, movieInfo);
@@ -627,6 +844,30 @@ async function loadLibraryMovies() {
         return;
     }
 
+    // Load ratings for current user
+    let movieRatings = new Map();
+
+    if (activeLibraryTab === "watched") {
+        const { data: ratings, error: ratingsError } =
+            await supabaseClient
+                .from("movie_ratings")
+                .select("tmdb_id, rating")
+                .eq("user_id", user.id);
+
+        if (ratingsError) {
+            console.error("Ratings loading error:", ratingsError);
+            libraryMovies.textContent = "Nie udało się załadować ocen.";
+            return;
+        }
+
+        movieRatings = new Map(
+            ratings.map(rating => [
+                String(rating.tmdb_id),
+                rating.rating
+            ])
+        );
+    }
+
     libraryMovies.innerHTML = "";
 
     if (!movies || movies.length === 0) {
@@ -671,6 +912,73 @@ async function loadLibraryMovies() {
         genres.textContent = movie.genres?.join(", ") || "No genres";
 
         info.append(title, year, genres);
+
+        // Display movie rating on watched list
+        // Display and manage movie rating
+        if (activeLibraryTab === "watched") {
+
+            const currentRating = movieRatings.get(String(movie.tmdb_id)) || 0;
+
+            const ratingContainer = document.createElement("div");
+            ratingContainer.className = "movie-rating";
+
+            const ratingLabel = document.createElement("p");
+            ratingLabel.textContent = currentRating
+                ? `Twoja ocena: ${currentRating}/10`
+                : "Oceń film:";
+
+            const starsContainer = document.createElement("div");
+            starsContainer.className = "rating-stars";
+
+            for (let i = 1; i <= 10; i++) {
+
+                const star = document.createElement("button");
+                star.type = "button";
+                star.className = "rating-star";
+                star.textContent = i <= currentRating ? "★" : "☆";
+                star.title = `${i}/10`;
+
+                if (i <= currentRating) {
+                    star.classList.add("active");
+                }
+
+                star.addEventListener("click", async () => {
+
+                    starsContainer.querySelectorAll("button").forEach(button => {
+                        button.disabled = true;
+                    });
+
+                    const { error: ratingError } = await supabaseClient
+                        .from("movie_ratings")
+                        .upsert({
+                            user_id: user.id,
+                            tmdb_id: movie.tmdb_id,
+                            rating: i,
+                            updated_at: new Date().toISOString()
+                        }, {
+                            onConflict: "user_id,tmdb_id"
+                        });
+
+                    if (ratingError) {
+                        console.error("Rating save error:", ratingError);
+                        alert("Nie udało się zapisać oceny.");
+
+                        starsContainer.querySelectorAll("button").forEach(button => {
+                            button.disabled = false;
+                        });
+
+                        return;
+                    }
+
+                    await loadLibraryMovies();
+                });
+
+                starsContainer.appendChild(star);
+            }
+
+            ratingContainer.append(ratingLabel, starsContainer);
+            info.appendChild(ratingContainer);
+        }
 
         // Action buttons
         const actions = document.createElement("div");
@@ -720,6 +1028,23 @@ async function loadLibraryMovies() {
             removeButton.disabled = true;
             removeButton.textContent = "Removing...";
 
+            // Usuń ocenę filmu, jeśli usuwamy go z obejrzanych
+            if (activeLibraryTab === "watched") {
+                const { error: ratingDeleteError } = await supabaseClient
+                    .from("movie_ratings")
+                    .delete()
+                    .eq("user_id", user.id)
+                    .eq("tmdb_id", movie.tmdb_id);
+
+                if (ratingDeleteError) {
+                    console.error("Rating deletion error:", ratingDeleteError);
+                    removeButton.disabled = false;
+                    removeButton.textContent = "Usuń";
+                    return;
+                }
+            }
+
+            // Usuń film z biblioteki
             const { error: deleteError } = await supabaseClient
                 .from("movies")
                 .delete()
@@ -763,7 +1088,7 @@ async function loadPublicUsers() {
 
     const { data: users, error } = await supabaseClient
         .from("profiles")
-        .select("id, username")
+        .select("id, username, avatar_url")
         .eq("is_public", true)
         .neq("id", user.id)
         .order("username");
@@ -786,33 +1111,51 @@ async function loadPublicUsers() {
         const card = document.createElement("div");
         card.className = "movie-card user-card";
 
+        // PROFILE IMAGE
+        const avatarContainer = document.createElement("div");
+        avatarContainer.className = "user-avatar-container";
+
+        const avatar = document.createElement("img");
+        avatar.className = "user-avatar";
+        avatar.src = publicUser.avatar_url || "default-avatar.png";
+        avatar.alt = "Zdjęcie profilowe";
+
+        avatarContainer.appendChild(avatar);
+
+        // USERNAME
         const username = document.createElement("h3");
         username.textContent = publicUser.username;
 
+        // VIEW LIBRARY BUTTON
         const viewButton = document.createElement("button");
         viewButton.textContent = "Zobacz bibliotekę";
 
         viewButton.addEventListener("click", () => {
-            openPublicUserLibrary(publicUser.id, publicUser.username);
+            openPublicUserLibrary(
+                publicUser.id,
+                publicUser.username,
+                publicUser.avatar_url
+            );
         });
 
-        card.append(username, viewButton);
+        card.append(avatarContainer, username, viewButton);
         usersList.appendChild(card);
     });
 }
-
 
 // ==========================================
 // OPEN SELECTED USER LIBRARY
 // ==========================================
 
-async function openPublicUserLibrary(userId, username) {
+async function openPublicUserLibrary(userId, username, avatarUrl) {
 
     selectedPublicUserId = userId;
 
     activePublicTab = "watchlist";
 
-    selectedUsername.textContent = `Biblioteka użytkownika: ${username}`;
+    selectedUsername.textContent = username;
+
+    selectedUserAvatar.src = avatarUrl || "default-avatar.png";
 
     usersList.classList.add("hidden");
     userLibraryView.classList.remove("hidden");
@@ -913,6 +1256,25 @@ async function loadPublicUserMovies() {
         return;
     }
 
+    // Load selected user's movie ratings
+    const { data: ratings, error: ratingsError } =
+        await supabaseClient
+            .from("movie_ratings")
+            .select("tmdb_id, rating")
+            .eq("user_id", selectedPublicUserId);
+
+    if (ratingsError) {
+        console.error("Ratings loading error:", ratingsError);
+        return;
+    }
+
+    // Create a map of user's movie ratings
+    const movieRatings = new Map(
+        ratings.map(rating => [
+            String(rating.tmdb_id),
+            rating.rating
+        ])
+    );
     // Load my own movie collection
     const { data: myMovies, error: myMoviesError } =
         await supabaseClient
