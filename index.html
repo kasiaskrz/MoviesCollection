@@ -41,15 +41,23 @@
         <!-- GŁÓWNA APLIKACJA -->
         <section id="main-screen" class="hidden">
 
+
             <header class="main-header">
                 <div>
                     <h1>Owcza Kupa</h1>
                 </div>
 
-                <button id="logout-button" class="logout-button">
-                    Wyloguj się
-                </button>
+                <div class="header-actions">
+                    <button id="profile-button" class="profile-button" title="Profil">
+                        <img id="header-avatar" src="default-avatar.png" alt="Profil">
+                    </button>
+
+                    <button id="logout-button" class="logout-button">
+                        Wyloguj się
+                    </button>
+                </div>
             </header>
+
 
             <div class="welcome-section">
                 <h2>Witaj ponownie!</h2>
@@ -94,9 +102,41 @@
                     <button type="button" id="watched-tab" class="library-tab">
                         Obejrzane
                     </button>
+
+                    <button type="button" id="users-tab" class="library-tab">
+                        Użytkownicy
+                    </button>
                 </div>
 
                 <div id="library-movies" class="movie-grid"></div>
+
+                <!-- PUBLIC USERS -->
+                <div id="users-section" class="hidden">
+
+                    <div id="users-list" class="movie-grid"></div>
+
+                    <!-- Selected user's library -->
+                    <div id="user-library-view" class="hidden">
+                        <button type="button" id="back-to-users">
+                            ← Wróć do użytkowników
+                        </button>
+
+                        <h3 id="selected-username"></h3>
+
+                        <div class="library-tabs">
+                            <button type="button" id="public-watchlist-tab" class="library-tab active">
+                                Do obejrzenia
+                            </button>
+
+                            <button type="button" id="public-watched-tab" class="library-tab">
+                                Obejrzane
+                            </button>
+                        </div>
+
+                        <div id="user-library-movies" class="movie-grid"></div>
+                    </div>
+
+                </div>
             </section>
 
         </section>

@@ -133,26 +133,36 @@ logoutButton.addEventListener("click", async () => {
 // LOAD MOVIE STATISTICS
 // ==========================================
 
-async function loadMovieStatistics() {
 
-    const { data: { user }, error: userError } =
-        await supabaseClient.auth.getUser();
+async function loadMovieStatistics(userId = null) {
 
-    if (userError || !user) {
-        showLoginScreen();
-        return;
+    let targetUserId = userId;
+
+    // If no user ID is provided, use the logged-in user
+    if (!targetUserId) {
+        const { data: { user }, error: userError } =
+            await supabaseClient.auth.getUser();
+
+        if (userError || !user) {
+            showLoginScreen();
+            return;
+        }
+
+        targetUserId = user.id;
     }
 
     const { count: watchedCount, error: watchedError } =
         await supabaseClient
             .from("movies")
             .select("*", { count: "exact", head: true })
+            .eq("user_id", targetUserId)
             .eq("status", "watched");
 
     const { count: watchlistCount, error: watchlistError } =
         await supabaseClient
             .from("movies")
             .select("*", { count: "exact", head: true })
+            .eq("user_id", targetUserId)
             .eq("status", "watchlist");
 
     if (watchedError || watchlistError) {
@@ -165,8 +175,13 @@ async function loadMovieStatistics() {
 
     document.getElementById("watchlist-count").textContent =
         watchlistCount ?? 0;
-    await loadLibraryMovies();
+
+    // Only load your own library when viewing your own profile
+    if (!userId) {
+        await loadLibraryMovies();
+    }
 }
+
 
 // ==========================================
 // SESSION CHECK
@@ -501,6 +516,26 @@ const libraryMovies = document.getElementById("library-movies");
 const watchlistTab = document.getElementById("watchlist-tab");
 const watchedTab = document.getElementById("watched-tab");
 
+// ==========================================
+// PUBLIC USER LIBRARIES
+// ==========================================
+
+const usersTab = document.getElementById("users-tab");
+const usersSection = document.getElementById("users-section");
+const usersList = document.getElementById("users-list");
+
+const userLibraryView = document.getElementById("user-library-view");
+const userLibraryMovies = document.getElementById("user-library-movies");
+
+const selectedUsername = document.getElementById("selected-username");
+const backToUsersButton = document.getElementById("back-to-users");
+
+const publicWatchlistTab = document.getElementById("public-watchlist-tab");
+const publicWatchedTab = document.getElementById("public-watched-tab");
+
+let selectedPublicUserId = null;
+let activePublicTab = "watchlist";
+
 const watchedStat = document.getElementById("watched-stat");
 const watchlistStat = document.getElementById("watchlist-stat");
 
@@ -529,13 +564,42 @@ watchedTab.addEventListener("click", () => {
     showLibraryTab("watched");
 });
 
+// Open public users section
+usersTab.addEventListener("click", () => {
+
+    watchlistTab.classList.remove("active");
+    watchedTab.classList.remove("active");
+    usersTab.classList.add("active");
+
+    libraryMovies.classList.add("hidden");
+    usersSection.classList.remove("hidden");
+
+    userLibraryView.classList.add("hidden");
+    usersList.classList.remove("hidden");
+
+    loadPublicUsers();
+});
+
+// Return to personal library when selecting its tabs
+
 function showLibraryTab(status) {
     activeLibraryTab = status;
 
+    // Przywróć własne zakładki
     watchlistTab.classList.toggle("active", status === "watchlist");
     watchedTab.classList.toggle("active", status === "watched");
+    usersTab.classList.remove("active");
 
-    loadLibraryMovies();
+    // Pokaż własną bibliotekę
+    usersSection.classList.add("hidden");
+    libraryMovies.classList.remove("hidden");
+
+    // Przygotuj widok użytkowników na następne wejście
+    userLibraryView.classList.add("hidden");
+    usersList.classList.remove("hidden");
+
+    // Załaduj filmy zalogowanego użytkownika
+    loadMovieStatistics();
 }
 
 // Load movies from Supabase
@@ -553,6 +617,7 @@ async function loadLibraryMovies() {
     const { data: movies, error } = await supabaseClient
         .from("movies")
         .select("*")
+        .eq("user_id", user.id)
         .eq("status", activeLibraryTab)
         .order("added_at", { ascending: false });
 
@@ -678,6 +743,326 @@ async function loadLibraryMovies() {
         libraryMovies.appendChild(card);
     });
 }
+
+
+// ==========================================
+// LOAD PUBLIC USERS
+// ==========================================
+
+async function loadPublicUsers() {
+
+    usersList.innerHTML = "<p>Ładowanie użytkowników...</p>";
+
+    const { data: { user }, error: userError } =
+        await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+        usersList.textContent = "Nie udało się pobrać użytkownika.";
+        return;
+    }
+
+    const { data: users, error } = await supabaseClient
+        .from("profiles")
+        .select("id, username")
+        .eq("is_public", true)
+        .neq("id", user.id)
+        .order("username");
+
+    if (error) {
+        console.error("Users loading error:", error);
+        usersList.textContent = "Nie udało się załadować użytkowników.";
+        return;
+    }
+
+    usersList.innerHTML = "";
+
+    if (!users || users.length === 0) {
+        usersList.innerHTML = "<p>Nie znaleziono innych publicznych profili.</p>";
+        return;
+    }
+
+    users.forEach(publicUser => {
+
+        const card = document.createElement("div");
+        card.className = "movie-card user-card";
+
+        const username = document.createElement("h3");
+        username.textContent = publicUser.username;
+
+        const viewButton = document.createElement("button");
+        viewButton.textContent = "Zobacz bibliotekę";
+
+        viewButton.addEventListener("click", () => {
+            openPublicUserLibrary(publicUser.id, publicUser.username);
+        });
+
+        card.append(username, viewButton);
+        usersList.appendChild(card);
+    });
+}
+
+
+// ==========================================
+// OPEN SELECTED USER LIBRARY
+// ==========================================
+
+async function openPublicUserLibrary(userId, username) {
+
+    selectedPublicUserId = userId;
+
+    activePublicTab = "watchlist";
+
+    selectedUsername.textContent = `Biblioteka użytkownika: ${username}`;
+
+    usersList.classList.add("hidden");
+    userLibraryView.classList.remove("hidden");
+
+    publicWatchlistTab.classList.add("active");
+    publicWatchedTab.classList.remove("active");
+
+    await loadMovieStatistics(userId);
+    await loadPublicUserMovies();
+}
+
+// Add a movie from another user's profile to my library
+async function addPublicMovieToMyLibrary(movie, status) {
+
+    const { data: { user }, error: userError } =
+        await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+        alert("Musisz być zalogowany.");
+        return;
+    }
+
+    // Check if movie already exists in my library
+    const { data: existingMovie, error: checkError } =
+        await supabaseClient
+            .from("movies")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("tmdb_id", movie.tmdb_id)
+            .maybeSingle();
+
+    if (checkError) {
+        console.error("Movie check error:", checkError);
+        return;
+    }
+
+    if (existingMovie) {
+        alert("Ten film znajduje się już w Twojej bibliotece.");
+        await loadPublicUserMovies();
+        return;
+    }
+
+    // Add movie to my library
+    const { error: insertError } = await supabaseClient
+        .from("movies")
+        .insert({
+            user_id: user.id,
+            tmdb_id: movie.tmdb_id,
+            title: movie.title,
+            release_year: movie.release_year,
+            poster_path: movie.poster_path,
+            genres: movie.genres,
+            genre_ids: movie.genre_ids,
+            status: status,
+            added_at: new Date().toISOString(),
+            watched_at: status === "watched"
+                ? new Date().toISOString()
+                : null
+        });
+
+    if (insertError) {
+        console.error("Movie insert error:", insertError);
+        alert("Nie udało się dodać filmu.");
+        return;
+    }
+
+    // Refresh public movies to update button status
+    await loadPublicUserMovies();
+}
+// ==========================================
+// LOAD PUBLIC USER MOVIES
+// ==========================================
+
+
+async function loadPublicUserMovies() {
+
+    userLibraryMovies.innerHTML = "<p>Ładowanie filmów...</p>";
+
+    const { data: { user }, error: userError } =
+        await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+        userLibraryMovies.textContent = "Nie udało się pobrać użytkownika.";
+        return;
+    }
+
+    // Load selected user's movies
+    const { data: movies, error } = await supabaseClient
+        .from("movies")
+        .select("*")
+        .eq("user_id", selectedPublicUserId)
+        .eq("status", activePublicTab)
+        .order("added_at", { ascending: false });
+
+    if (error) {
+        console.error("Public library error:", error);
+        userLibraryMovies.textContent = "Nie udało się załadować filmów.";
+        return;
+    }
+
+    // Load my own movie collection
+    const { data: myMovies, error: myMoviesError } =
+        await supabaseClient
+            .from("movies")
+            .select("tmdb_id, status")
+            .eq("user_id", user.id);
+
+    if (myMoviesError) {
+        console.error("My movies loading error:", myMoviesError);
+        return;
+    }
+
+    // Create a map of my existing movies
+    const myMovieStatuses = new Map(
+        myMovies.map(movie => [
+            String(movie.tmdb_id),
+            movie.status
+        ])
+    );
+
+    userLibraryMovies.innerHTML = "";
+
+    if (!movies || movies.length === 0) {
+        userLibraryMovies.innerHTML =
+            "<p>Ta lista jest jeszcze pusta.</p>";
+        return;
+    }
+
+    movies.forEach(movie => {
+
+        const card = document.createElement("div");
+        card.className = "movie-card";
+
+        // Movie poster
+        if (movie.poster_path) {
+            const poster = document.createElement("img");
+            poster.src = `${TMDB_IMAGE_URL}${movie.poster_path}`;
+            poster.alt = `${movie.title} poster`;
+            card.appendChild(poster);
+        } else {
+            const noPoster = document.createElement("div");
+            noPoster.className = "no-poster";
+            noPoster.textContent = "Brak plakatu";
+            card.appendChild(noPoster);
+        }
+
+        // Movie information
+        const info = document.createElement("div");
+        info.className = "movie-info";
+
+        const title = document.createElement("h3");
+        title.textContent = movie.title;
+
+        const year = document.createElement("p");
+        year.textContent = movie.release_year || "Nieznany rok";
+
+        const genres = document.createElement("p");
+        genres.className = "movie-genres";
+        genres.textContent =
+            movie.genres?.join(", ") || "Brak gatunków";
+
+        info.append(title, year, genres);
+
+        // Movie actions
+        const actions = document.createElement("div");
+        actions.className = "movie-actions";
+
+        const existingStatus =
+            myMovieStatuses.get(String(movie.tmdb_id));
+
+        if (existingStatus === "watched") {
+
+            const statusLabel = document.createElement("button");
+            statusLabel.textContent = "Obejrzany ✓";
+            statusLabel.disabled = true;
+            actions.appendChild(statusLabel);
+
+        } else if (existingStatus === "watchlist") {
+
+            const statusLabel = document.createElement("button");
+            statusLabel.textContent = "Dodano do obejrzenia ✓";
+            statusLabel.disabled = true;
+            actions.appendChild(statusLabel);
+
+        } else {
+
+            const watchlistButton = document.createElement("button");
+            watchlistButton.textContent = "Dodaj do obejrzenia";
+
+            watchlistButton.addEventListener("click", async () => {
+                watchlistButton.disabled = true;
+                await addPublicMovieToMyLibrary(movie, "watchlist");
+            });
+
+            const watchedButton = document.createElement("button");
+            watchedButton.textContent = "Dodaj do obejrzanych";
+
+            watchedButton.addEventListener("click", async () => {
+                watchedButton.disabled = true;
+                await addPublicMovieToMyLibrary(movie, "watched");
+            });
+
+            actions.append(watchlistButton, watchedButton);
+        }
+
+        info.appendChild(actions);
+        card.appendChild(info);
+
+        userLibraryMovies.appendChild(card);
+    });
+}
+
+
+
+// ==========================================
+// PUBLIC LIBRARY TABS
+// ==========================================
+
+publicWatchlistTab.addEventListener("click", () => {
+
+    activePublicTab = "watchlist";
+
+    publicWatchlistTab.classList.add("active");
+    publicWatchedTab.classList.remove("active");
+
+    loadPublicUserMovies();
+});
+
+publicWatchedTab.addEventListener("click", () => {
+
+    activePublicTab = "watched";
+
+    publicWatchedTab.classList.add("active");
+    publicWatchlistTab.classList.remove("active");
+
+    loadPublicUserMovies();
+});
+
+
+// ==========================================
+// BACK TO USERS LIST
+// ==========================================
+
+backToUsersButton.addEventListener("click", () => {
+
+    userLibraryView.classList.add("hidden");
+    usersList.classList.remove("hidden");
+
+});
+
 
 // Back to top button
 const backToTopButton = document.getElementById("back-to-top");

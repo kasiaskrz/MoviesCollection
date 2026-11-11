@@ -504,3 +504,30 @@ h1 {
 #back-to-top.visible {
     display: flex;
 }
+
+
+/* HEADER ACTIONS */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* PROFILE BUTTON */
+.profile-button {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    background: #252832;
+}
+
+.profile-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
